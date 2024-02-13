@@ -17,16 +17,16 @@ Score_af
 
 vector_score_pos1 <- vector()
 for (i in 1:10) {
-  vector_score_pos[[i]] <- Score_x_af[[i]][2,2]*Score_af[[i]]
+  vector_score_pos1[[i]] <- Score_x_af[[i]][2,2]*Score_af[[i]]
 }
-avp_af <- sum(vector_score_pos)/k1
+avp_af <- sum(vector_score_pos1)/k1
 
 
 vector_score_neg1 <- vector()
 for (i in 1:10) {
-  vector_score_neg[[i]] <- Score_x_af[[i]][1,2]*Score_af[[i]]
+  vector_score_neg1[[i]] <- Score_x_af[[i]][1,2]*Score_af[[i]]
 }
-avn_af <- sum(vector_score_neg)/(N1-k1)
+avn_af <- sum(vector_score_neg1)/(N1-k1)
 
 
 
@@ -65,22 +65,10 @@ Calibration_long <- pivot_longer(Calibration, cols = c(Score_af, Score_wh),
 
 ggplot(data = Calibration_long, aes(x = factor(Score), y = v_b, fill = factor(Group))) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  scale_fill_manual(values = c("black", "red"), labels = c("African-American", "White")) +  # Farben anpassen
+  scale_fill_manual(values = c("black", "#3366FF"), labels = c("African-American", "White")) +  # Farben anpassen
   labs(x = "Score", y = "Positive Cases", fill = "Group") +
   theme_bw(12)
 
-
-ggplot(Calibration_long, aes(x = Score, y = v_b, colour = Group, linetype = Group, size = Group)) +
-  geom_line() +  # Linien dicker und beide Ästhetiken auf Group setzen
-  geom_point(size = 2.5) +
-  scale_colour_manual(values = c("black", "#3366FF"), labels = c("African-American", "White")) +
-  scale_linetype_manual(values = c(1, 2), labels = c("African-American", "White")) +
-  scale_size_manual(values = c(1.5, 1), labels = c("African-American", "White")) +
-  labs(x = "Score", y = "Positive Cases", linetype = "Group") +
-  theme_bw(12) +
-  theme(legend.position = "bottom") +
-  scale_x_continuous(breaks = seq(1,10))
-ggsave("Calibration_Plot.jpg")
 
 ggplot(Calibration_long, aes(x = Score, y = v_b, colour = Group, linetype = Group, size = Group)) +
   geom_line() +  # Linien dicker und beide Ästhetiken auf Group setzen
@@ -95,7 +83,7 @@ ggplot(Calibration_long, aes(x = Score, y = v_b, colour = Group, linetype = Grou
   scale_x_continuous(breaks = seq(1,10))
 ggsave("Calibration_Plot1.jpg")
 
-
+### Calibration threshold: Compas
 ggplot(Calibration_long, aes(x = Score, y = v_b, colour = Group, linetype = Group, size = Group)) +
   geom_line() +  # Linien dicker und beide Ästhetiken auf Group setzen
   geom_point(size = 2.5) +
@@ -111,6 +99,7 @@ ggplot(Calibration_long, aes(x = Score, y = v_b, colour = Group, linetype = Grou
 
 Calibration_long_area <- subset(Calibration_long, Score > 4)
 
+## Calibration: Connection to Predicitve Parity
 ggplot() +
   geom_line(data = Calibration_long, aes(x = Score, y = v_b, colour = Group, linetype = Group, size = Group)) +
   geom_point(data = Calibration_long, aes(x = Score, y = v_b, colour = Group), size = 2.5) +
