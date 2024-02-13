@@ -1,3 +1,50 @@
+#####
+
+## 1. Run ProPublica_Analysis.R to get the Compas dataframe "df"
+## 2. Run this code
+
+#####
+
+## In this code, frequently used values such as the base rates of the African-Americans and Whites are calculated
+## and different subsets of the Compas data used in my anaysis are generated;
+## the following fairenss metrics are calculated:
+## Balance for positive class 
+## Balance for negative class
+## Error Rate Balance (False Positive Rate Balance & False Negative Rate Balance)
+## Predicitve Parity (Positive Predictive Values)
+## Calibration
+## Statistical Parity
+
+########################################################################################################
+######################### BASE RATES 
+########################################################################################################
+
+#Base rates: 
+af <- df %>% 
+  filter(race == "African-American")
+#3175
+
+wh <- df %>% 
+  filter(race == "Caucasian")
+#2103
+
+#African Americans: 
+recid_af <- df %>% 
+  filter(race == "African-American") %>% 
+  select(two_year_recid) %>% 
+  as.vector()
+
+sum(recid_af[[1]])/length(recid_af[[1]])
+#->0.5231496
+
+#White Americans: 
+recid_wh <- df %>% 
+  filter(race == "Caucasian") %>% 
+  select(two_year_recid) %>% 
+  as.vector()
+
+sum(recid_wh[[1]])/length(recid_wh[[1]])
+#-> 0.3908702
 
 ########################################################################################################
 ######################### BALANCE FOR POSITVE & NEGATIVE CLASS
@@ -56,39 +103,7 @@ avn_wh <- lapply(score_white_0, mean)
 #2.942233
 
 ########################################################################################################
-######################### BASE RATES 
-########################################################################################################
-
-##############
-#Base rates: 
-af <- df %>% 
-  filter(race == "African-American")
-#3175
-
-wh <- df %>% 
-  filter(race == "Caucasian")
-#2103
-
-#African Americans: 
-recid_af <- df %>% 
-  filter(race == "African-American") %>% 
-  select(two_year_recid) %>% 
-  as.vector()
-
-sum(recid_af[[1]])/length(recid_af[[1]])
-#->0.5231496
-
-#White Americans: 
-recid_wh <- df %>% 
-  filter(race == "Caucasian") %>% 
-  select(two_year_recid) %>% 
-  as.vector()
-
-sum(recid_wh[[1]])/length(recid_wh[[1]])
-#-> 0.3908702
-
-########################################################################################################
-######################### FALSE POSITIVE & FALSE NEGATIVE 
+######################### FALSE POSITIVE & FALSE NEGATIVE RATE
 ########################################################################################################
 
 #######
@@ -250,7 +265,7 @@ pred_wh <- df %>%
 length(pred_wh[[1]])/length(subset(df$race, df$race == "Caucasian"))
 
 
-##-> keine statistical parity?
+##-> keine statistical parity
 
 
 
