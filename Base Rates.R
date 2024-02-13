@@ -1,3 +1,7 @@
+###### 
+
+## Simulating equal prevalences:
+
 #####Change Base Rate
 
 set.seed(123)
@@ -103,7 +107,7 @@ avn_af_br <- sum(vector_score_neg_br)/1281
 # [1] 0.2115702 0.3115265 0.3445378 0.4032922 0.4550000 0.5812500 0.6017699 0.7500000 0.7142857 0.7000000
 # [1] 0.1378092 0.2490119 0.2850000 0.3375527 0.3603604 0.4714286 0.4520548 0.6011905 0.6217617 0.7118644
 
-########## => Calibration fullfilled 
+########## => Calibration not fullfilled 
 
 vector_s_pos_br <- vector()
 for (i in 1:10) {
@@ -139,9 +143,9 @@ score_white_base <- df_baserate %>%
 lapply(score_white_base, mean)
 #4.715328
 
+## -> not fullfilled 
+
 ###Kleinberg: 
-
-
 
 ###Alternative: 
 f_1_br <- function(x) (0.3908702)/(1-(0.3908702))*(1-x)
