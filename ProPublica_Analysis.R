@@ -1,3 +1,13 @@
+#########
+
+## RUN THIS FIRST
+
+#########
+## Comment: In order to run my analysis code, this file has to be executed first since in ProPublica's 
+## analysis the dataframe "df", which I use, is prepared.
+#########
+
+
 ##ProPublicas Analysis: 
 
 library(dplyr)
