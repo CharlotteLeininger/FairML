@@ -40,7 +40,11 @@ recid_af <- df %>%
   select(two_year_recid) %>% 
   as.vector()
 
-sum(recid_af[[1]])/length(recid_af[[1]])
+k1 <- sum(recid_af[[1]])    #positive cases (Recidivist) Group 1 (African-Americans)
+N1 <- length(recid_af[[1]]) #all cases Group 1
+
+
+p1 <- k1/N1
 #-> 0.5231496 recidivism prevalence for African-Americans
 
 #White Americans: 
@@ -49,7 +53,10 @@ recid_wh <- df %>%
   select(two_year_recid) %>% 
   as.vector()
 
-sum(recid_wh[[1]])/length(recid_wh[[1]])
+k2 <- sum(recid_wh[[1]])    #positive cases (Recidivist) Group 2 (White)
+N2 <- length(recid_wh[[1]]) #all cases Group 2
+
+p2 <- k2/N2
 #-> 0.3908702 recidivism prevalence for Whites
 
 ########################################################################################################
