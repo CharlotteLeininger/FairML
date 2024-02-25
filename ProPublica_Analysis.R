@@ -19,6 +19,7 @@ nrow(raw_data)
 
 df <- dplyr::select(raw_data, age, c_charge_degree, race, age_cat, score_text, sex, priors_count, 
                     days_b_screening_arrest, decile_score, is_recid, two_year_recid, c_jail_in, c_jail_out) %>% 
+  filter(race %in% c("African-American", "Caucasian")) %>% 
   filter(days_b_screening_arrest <= 30) %>%
   filter(days_b_screening_arrest >= -30) %>%
   filter(is_recid != -1) %>%
@@ -58,11 +59,11 @@ xtabs(~ decile_score + race, data=df)
 #Is there a significant difference in Compas scores between races
 
 #1. Change some variables into factors
-df <- df <- mutate(df, crime_factor = factor(c_charge_degree)) %>%
+df <- mutate(df, crime_factor = factor(c_charge_degree)) %>%
   mutate(age_factor = as.factor(age_cat)) %>%
   within(age_factor <- relevel(age_factor, ref = 1)) %>%
   mutate(race_factor = factor(race)) %>%
-  within(race_factor <- relevel(race_factor, ref = 3)) %>%
+  within(race_factor <- relevel(race_factor, ref = 2)) %>%
   mutate(gender_factor = factor(sex, labels= c("Female","Male"))) %>%
   within(gender_factor <- relevel(gender_factor, ref = 2)) %>%
   mutate(score_factor = factor(score_text != "Low", labels = c("LowScore","HighScore")))
