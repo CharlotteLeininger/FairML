@@ -1,6 +1,14 @@
-###Descriptive plots: 
+##### Requirements:
 
-### Proof Kleinberg Plot: 
+## 1. Run ProPublica_Analysis.R to get the Compas dataframe "df"
+## 2. Run "FairnessMetrics.R" for fairness metrics values used in the following plots
+## 3. Run this code
+
+########################################################################################################
+######################### Descriptive plots
+########################################################################################################
+
+### Graphical proof Kleinberg Plot: 
 
 #Group 1: African-Americans:
 k1 <- sum(recid_af[[1]])    #positive cases (Recidivist) Group 1 (African-Americans)
@@ -22,14 +30,18 @@ ggplot() +
   scale_color_manual(values = c("f_1" = "black", "f_2" = "#3366FF"),
                      name = NULL,
                      labels = c("f_1" = "African-American", "f_2" = "White")) +
-  theme_bw(base_size = 12) +
-  xlab("x = Average Score For Positive Class") +
-  ylab("y = Average Score For Negative Class") +
+  theme_bw(base_size = 20) +
+  xlab("x") +
+  ylab("y") +
   xlim(c(0,1)) +
   ylim(c(0,1)) +
-  theme(legend.position = c(0.8, 0.8),
-        legend.background = element_rect(colour = "black", size = 0.3))
-ggsave("Kleinberg_Plot1.jpg")
+  theme(  
+    legend.key           = element_rect(fill = NA, color = NA, size = 1),
+    legend.background    = element_rect(color = "black", size = 0.25),
+    legend.justification = c(1, 1),
+    legend.position      = c(1, 1),
+    legend.box.margin    = margin(1, 1, 1, 1))
+# ggsave("Kleinberg_Plot1.jpg", width = 8, height = 5)
 
 ### Proof Chouldechova Plot: 
 
@@ -70,17 +82,69 @@ ggplot() +
                      labels = c("f_c1" = "African-American", "f_c2" = "White")) +
   geom_point(aes(x=FNR_af, y=FPR_af), colour="black", size = 4) +     #adding FNR and FPR of COMPAS for African-Americans
   geom_point(aes(x=FNR_wh, y=FPR_wh), colour="#3366FF", size = 4) +   #adding FNR and FPR of COMPAS for Whites
-  theme_bw(base_size = 12) +
+  theme_bw(base_size = 20) +
   xlab("FNR") +
   ylab("FPR") +
   xlim(c(0,1)) +
   ylim(c(0,1)) +
-  theme(legend.position = c(0.8, 0.8),
-        legend.background = element_rect(colour = "black", size = 0.3))
-ggsave("Chouldechova_Plot.jpg")
+  theme(  
+    legend.key           = element_rect(fill = NA, color = NA, size = 1),
+    legend.background    = element_rect(color = "black", size = 0.25),
+    legend.justification = c(1, 1),
+    legend.position      = c(1, 1),
+    legend.box.margin    = margin(1, 1, 1, 1))
+# ggsave("Chouldechova_Plot.jpg", width = 8, height = 5)
 
 ###############################################################################################
 ##Plots: Fulfilling 2 fairness metrics 
+
+##Adjust FPR African-Americans:
+ggplot() +
+  geom_function(aes(color = "f_c1"), fun = f_c1, size = 1.5, linetype = 1) +
+  geom_function(aes(color = "f_c2"), fun = f_c2, size = 1.5, linetype = 2) +
+  scale_color_manual(values = c("f_c1" = "black", "f_c2" = "#3366FF"),
+                     name = NULL,
+                     labels = c("f_c1" = "African-American", "f_c2" = "White")) +
+  geom_point(aes(x=FNR_af, y=FPR_af), colour="black", size = 4) +
+  geom_point(aes(x=FNR_wh, y=FPR_wh), colour="#3366FF", size = 4) +
+  geom_point(aes(x=FNR_wh, y=f_c1(FNR_wh)), colour = "black", size = 4, pch=21) +
+  geom_vline(xintercept=FNR_wh, linetype="dashed") +
+  theme_bw(base_size = 20) +
+  xlab("FNR") +
+  ylab("FPR") +
+  xlim(c(0,1)) +
+  ylim(c(0,1)) +
+  theme(  
+    legend.key           = element_rect(fill = NA, color = NA, size = 1),
+    legend.background    = element_rect(color = "black", size = 0.25),
+    legend.justification = c(1, 1),
+    legend.position      = c(1, 1),
+    legend.box.margin    = margin(1, 1, 1, 1))
+# ggsave("Chouldechova_FPR2.jpg", width = 8, height = 5)
+
+##Adjusted FNR African-Americans: 
+ggplot() +
+  geom_function(aes(color = "f_c1"), fun = f_c1, size = 1.5, linetype = 1) +
+  geom_function(aes(color = "f_c2"), fun = f_c2, size = 1.5, linetype = 2) +
+  scale_color_manual(values = c("f_c1" = "black", "f_c2" = "#3366FF"),
+                     name = NULL,
+                     labels = c("f_c1" = "African-American", "f_c2" = "White")) +
+  geom_point(aes(x=FNR_af, y=FPR_af), colour="black", size = 4) +
+  geom_point(aes(x=FNR_wh, y=FPR_wh), colour="#3366FF", size = 4) +
+  geom_hline(yintercept=FPR_wh, linetype="dashed") + # adjust FPR of black
+  geom_point(aes(x=f_FNR1(FPR_wh), y = FPR_wh), colour = "black", size = 4, pch=21) + # Black: new FNR = 0.628
+  theme_bw(base_size = 20) +
+  xlab("FNR") +
+  ylab("FPR") +
+  xlim(c(0,1)) +
+  ylim(c(0,1)) +
+  theme(  
+    legend.key           = element_rect(fill = NA, color = NA, size = 1),
+    legend.background    = element_rect(color = "black", size = 0.25),
+    legend.justification = c(1, 1),
+    legend.position      = c(1, 1),
+    legend.box.margin    = margin(1, 1, 1, 1))
+# ggsave("Chouldechova_FNR.jpg", width = 8, height = 5)
 
 ##Adjust FPR White:
 ggplot() +
@@ -92,17 +156,22 @@ ggplot() +
   geom_point(aes(x=FNR_af, y=FPR_af), colour="black", size = 4) +
   geom_point(aes(x=FNR_wh, y=FPR_wh), colour="#3366FF", size = 4) +
   geom_point(aes(x=FNR_af, y=f_c2(FNR_af)), colour = "#3366FF", size = 4, pch=21) +
-  geom_vline(xintercept=FNR_af, linetype="dotted") +
-  theme_bw(base_size = 12) +
+  geom_vline(xintercept=FNR_af, linetype="dashed",  color = "black") +
+  theme_bw(base_size = 20) +
   xlab("FNR") +
   ylab("FPR") +
   xlim(c(0,1)) +
   ylim(c(0,1)) +
-  theme(legend.position = c(0.8, 0.8),
-        legend.background = element_rect(colour = "black", size = 0.3))
-ggsave("Chouldechova_FPR.jpg")
+  theme(  
+    legend.key           = element_rect(fill = NA, color = NA, size = 1),
+    legend.background    = element_rect(color = "black", size = 0.25),
+    legend.justification = c(1, 1),
+    legend.position      = c(1, 1),
+    legend.box.margin    = margin(1, 1, 1, 1))
+# ggsave("Chouldechova_FPR.jpg", width = 8, height = 5)
 
-##Adjust FPR Black:
+
+##Adjusted FNR Whites: 
 ggplot() +
   geom_function(aes(color = "f_c1"), fun = f_c1, size = 1.5, linetype = 1) +
   geom_function(aes(color = "f_c2"), fun = f_c2, size = 1.5, linetype = 2) +
@@ -111,62 +180,23 @@ ggplot() +
                      labels = c("f_c1" = "African-American", "f_c2" = "White")) +
   geom_point(aes(x=FNR_af, y=FPR_af), colour="black", size = 4) +
   geom_point(aes(x=FNR_wh, y=FPR_wh), colour="#3366FF", size = 4) +
-  geom_point(aes(x=FNR_wh, y=f_c1(FNR_wh)), colour = "black", size = 4, pch=21) +
-  geom_vline(xintercept=FNR_wh, linetype="dotted") +
-  theme_bw(base_size = 12) +
-  xlab("FNR") +
-  ylab("FPR") +
-  xlim(c(0,1)) +
-  ylim(c(0,1)) +
-  theme(legend.position = c(0.8, 0.8),
-        legend.background = element_rect(colour = "black", size = 0.3))
-ggsave("Chouldechova_FPR2.jpg")
-
-##Adjusted FNR black: 
-ggplot() +
-  geom_function(aes(color = "f_c1"), fun = f_c1, size = 1.5, linetype = 1) +
-  geom_function(aes(color = "f_c2"), fun = f_c2, size = 1.5, linetype = 2) +
-  scale_color_manual(values = c("f_c1" = "black", "f_c2" = "#3366FF"),
-                     name = NULL,
-                     labels = c("f_c1" = "African-American", "f_c2" = "White")) +
-  geom_point(aes(x=FNR_af, y=FPR_af), colour="black", size = 4) +
-  geom_point(aes(x=FNR_wh, y=FPR_wh), colour="#3366FF", size = 4) +
-  geom_hline(yintercept=FPR_wh, linetype="dotted") + # adjust FPR of black
-  geom_point(aes(x=f_FNR1(FPR_wh), y = FPR_wh), colour = "black", size = 4, pch=21) + # Black: new FNR = 0.628
-  theme_bw(base_size = 12) +
-  xlab("FNR") +
-  ylab("FPR") +
-  xlim(c(0,1)) +
-  ylim(c(0,1)) +
-  theme(legend.position = c(0.8, 0.8),
-        legend.background = element_rect(colour = "black", size = 0.3))
-ggsave("Chouldechova_FNR.jpg")
-
-##Adjusted FNR white: 
-ggplot() +
-  geom_function(aes(color = "f_c1"), fun = f_c1, size = 1.5, linetype = 1) +
-  geom_function(aes(color = "f_c2"), fun = f_c2, size = 1.5, linetype = 2) +
-  scale_color_manual(values = c("f_c1" = "black", "f_c2" = "#3366FF"),
-                     name = NULL,
-                     labels = c("f_c1" = "African-American", "f_c2" = "White")) +
-  geom_point(aes(x=FNR_af, y=FPR_af), colour="black", size = 4) +
-  geom_point(aes(x=FNR_wh, y=FPR_wh), colour="#3366FF", size = 4) +
-  geom_hline(yintercept=FPR_af, linetype="dotted") + # adjust FPR of white
+  geom_hline(yintercept=FPR_af, linetype="dashed") + # adjust FPR of white
   geom_point(aes(x=f_FNR2(FPR_af), y = FPR_af), colour = "black", size = 4, pch=21) + # White: new FNR = 0.031
-  theme_bw(base_size = 12) +
+  theme_bw(base_size = 20) +
   xlab("FNR") +
   ylab("FPR") +
   xlim(c(0,1)) +
   ylim(c(0,1)) +
-  theme(legend.position = c(0.8, 0.8),
-        legend.background = element_rect(colour = "black", size = 0.3))
-ggsave("Chouldechova_FNR2.jpg")
+  theme(  
+    legend.key           = element_rect(fill = NA, color = NA, size = 1),
+    legend.background    = element_rect(color = "black", size = 0.25),
+    legend.justification = c(1, 1),
+    legend.position      = c(1, 1),
+    legend.box.margin    = margin(1, 1, 1, 1))
+# ggsave("Chouldechova_FNR2.jpg", width = 8, height = 5)
 
 
-#Adjust PPV: 
-f_adjustPPV_upper <- function(FNR) (p1/(1-p1))*((1-(PPV_af+0.125))/(PPV_af+0.125))*(1-FNR)
-f_adjustPPV_lower <- function(FNR) (p1/(1-p1))*((1-(PPV_af-0.125))/(PPV_af-0.125))*(1-FNR)
-
+#Adjust PPV for African-Americans (epsilon <= 0.1): 
 PPV_data <- data.frame(x=seq(0,1, 0.1))
 PPV_data[[2]]  <- sapply(PPV_data$x, FUN = function(FNR) (p1/(1-p1))*((1-(PPV_af+0.1))/(PPV_af+0.1))*(1-FNR))
 PPV_data[[3]] <- sapply(PPV_data$x, FUN = function(FNR) (p1/(1-p1))*((1-(PPV_af-0.1))/(PPV_af-0.1))*(1-FNR))
@@ -179,15 +209,19 @@ ggplot(PPV_data, aes(x=x, y = V3)) +
                      labels = c("f_c1" = "African-American", "f_c2" = "White")) +
   geom_point(aes(x=FNR_af, y=FPR_af), colour="black", size = 4) +
   geom_point(aes(x=FNR_wh, y=FPR_wh), colour="#3366FF", size = 4) +
-  geom_line(aes(y = V2)) + 
-  geom_line(aes(y = V3)) + 
-  geom_ribbon(aes(ymin = V3, ymax = V2), fill = "darkgrey", alpha = .5) +
-  theme_bw(base_size = 12) +
+  geom_line(aes(y = V2), colour="white") + 
+  geom_line(aes(y = V3), colour="white") + 
+  geom_ribbon(aes(ymin = V3, ymax = V2), fill = "grey60", alpha = .5) +
+  theme_bw(base_size = 20) +
   xlab("FNR") +
   ylab("FPR") +
   xlim(c(0,1)) +
   ylim(c(0,1)) +
-  theme(legend.position = c(0.8, 0.8),
-        legend.background = element_rect(colour = "black", size = 0.3))
-ggsave("Chouldechova_PPV.jpg")
+  theme(  
+    legend.key           = element_rect(fill = NA, color = NA, size = 1),
+    legend.background    = element_rect(color = "black", size = 0.25),
+    legend.justification = c(1, 1),
+    legend.position      = c(1, 1),
+    legend.box.margin    = margin(1, 1, 1, 1))
+# ggsave("Chouldechova_PPV.jpg", width = 8, height = 5)
 
