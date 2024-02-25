@@ -1,20 +1,24 @@
-###### 
+##### Requirements:
 
-## Simulating equal prevalences:
+## 1. Run ProPublica_Analysis.R to get the Compas dataframe "df"
+## 2. Run this code
 
-#####Change Base Rate
+##########################################################################################
+## Simulating equal prevalences (= base rates):
+##### (Not used in the paper since no good results)
 
+#####Change base rate for African-Americans to match base rate of Whites:
 set.seed(123)
 ##African Americans: 
 baserate_af_pos <- df %>%
   filter(race == "African-American") %>% 
   filter(two_year_recid == 1) %>% 
-  sample_n(size = 822)
+  sample_n(size = 822) # randomly select only proportion of positive cases to match size for Whites
 
 baserate_af_neg <- df %>%
   filter(race == "African-American") %>% 
   filter(two_year_recid == 0) %>% 
-  sample_n(size = 1281)
+  sample_n(size = 1281) # randomly select only proportion of negative cases to match size for Whites
 
 baserate_af <- rbind(baserate_af_pos, baserate_af_neg)
 
@@ -28,6 +32,7 @@ baserate_wh <- df %>%
 # Final Dataset with equal baserates: 
 df_baserate <- rbind(baserate_af, baserate_wh)
 
+#############
 # Check:
 
 #African Americans: 
@@ -52,7 +57,6 @@ sum(recid_wh_base[[1]])/length(recid_wh_base[[1]])
 #######################################################################################
 # Check the impossibility theorem for equal baserates: 
 #######################################################################################
-
 
 # 1. Calibration: 
 
@@ -145,35 +149,11 @@ lapply(score_white_base, mean)
 
 ## -> not fullfilled 
 
-###Kleinberg: 
-
-###Alternative: 
-f_1_br <- function(x) (0.3908702)/(1-(0.3908702))*(1-x)
-f_2_br <- function(x) (0.3908702)/(1-(0.3908702))*(1-x)
-
-ggplot() +
-  geom_function(aes(color = "f_1"), fun = f_1_br, size = 1.5) +
-  geom_function(aes(color = "f_2"), fun = f_2_br, size = 1) +
-  geom_point(aes(x=avp_af_br, y=avn_af_br), colour="black", size = 4) +
-  geom_point(aes(x=avp_wh, y=avn_wh), colour="red", size = 2) +
-  scale_color_manual(values = c("f_1" = "black", "f_2" = "red"),
-                     name = NULL,
-                     labels = c("f_1" = "Group 1", "f_2" = "Group 2")) +
-  theme_bw(base_size = 12) +
-  xlab(expression(paste("Average Score For Positive Class = ", gamma))) +
-  ylab("Average Score For Negative Class") +
-  xlim(c(0,1)) +
-  ylim(c(0,1)) +
-  theme(legend.position = "bottom")
-
-
-###################
-##Chouldechova: 
-
 ########################################################################################################
-######################### PPV
+######################### PPV, FPR and FNR for ne subset of African-Americans:
 ########################################################################################################
 
+## PPV:
 PV_af_br <- df_baserate %>% 
   filter(race == "African-American") %>% 
   filter(score_factor == "HighScore") %>% 
@@ -182,11 +162,7 @@ PV_af_br <- df_baserate %>%
 PPV_af_br <- length(subset(PV_af_br[[1]],PV_af_br[[1]] == 1))/length(PV_af_br[[1]])
 # [1] 0.5159292
 
-
-
-
-
-
+# FPR:
 FP_af_br <- df_baserate %>% 
   filter(race == "African-American") %>% 
   filter(two_year_recid == 0) %>% 
@@ -195,6 +171,7 @@ FP_af_br <- df_baserate %>%
 FPR_af_br <- length(subset(FP_af_br[[1]],FP_af_br[[1]] == "HighScore"))/length(FP_af_br[[1]])
 # [1] 0.4270101
 
+# FNR: 
 FN_af_br <- df_baserate %>% 
   filter(race == "African-American") %>% 
   filter(two_year_recid == 1) %>% 
@@ -204,32 +181,3 @@ FNR_af_br <- length(subset(FN_af_br[[1]],FN_af_br[[1]] == "LowScore"))/length(FN
 # [1] 0.2907543
 
 
-f_c1_br <-  function(FNR) (p2/(1-p2))*((1-PPV_af_br)/PPV_af_br)*(1-FNR)
-f_c2 <-  function(FNR) (p2/(1-p2))*((1-PPV_wh)/PPV_wh)*(1-FNR)
-
-ggplot() +
-  geom_function(aes(color = "f_c1_br"), fun = f_c1_br, size = 1.5) +
-  geom_function(aes(color = "f_c2"), fun = f_c2, size = 1.5) +
-  scale_color_manual(values = c("f_c1_br" = "black", "f_c2" = "red"),
-                     name = NULL,
-                     labels = c("f_c1_br" = "Group 1", "f_c2" = "Group 2")) +
-  geom_point(aes(x=FNR_af_br, y=FPR_af_br), colour="black", size = 4) +
-  geom_point(aes(x=FNR_wh, y=FPR_wh), colour="red", size = 4) +
-  theme_bw(base_size = 12) +
-  xlab("FNR") +
-  ylab("FPR") +
-  xlim(c(0,1)) +
-  ylim(c(0,1)) +
-  theme(legend.position = "bottom")
-
-###################################
-#Calibration BASE RATES: 
-Calibration_br <- as.data.frame(cbind("Score"= 1:10, Base_Score_af, Score_wh))
-Calibration_long_br <- pivot_longer(Calibration_br, cols = c(Base_Score_af, Score_wh),
-                                 names_to = "Group", values_to = "v_b")
-
-ggplot(data = Calibration_long_br, aes(x = factor(Score), y = v_b, fill = factor(Group))) +
-  geom_bar(stat = "identity", position = position_dodge()) +
-  scale_fill_manual(values = c("black", "red"), labels = c("African-American", "White")) +  # Farben anpassen
-  labs(x = "Score", y = "Positive Cases", fill = "Group") +
-  theme_bw(12)
